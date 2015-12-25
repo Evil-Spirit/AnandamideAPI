@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/types">
+        <file>types/eye.png</file>
+        <file>types/function.png</file>
+        <file>types/pinion.png</file>
+        <file>types/variable.png</file>
+        <file>types/array.png</file>
+        <file>types/undefined.png</file>
+    </qresource>
+    <qresource prefix="/"/>
+</RCC>
