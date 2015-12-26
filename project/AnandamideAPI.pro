@@ -64,7 +64,8 @@ SOURCES += \
     ../src/Renderer/Renderer.cpp \
     ../src/Anandamide/AnandamideStdLib.cpp \
     ../src/Anandamide/AnandamideTypeInfo.cpp \
-    ../src/Anandamide/AnandamideUi.cpp
+    ../src/Anandamide/AnandamideUi.cpp \
+    ../src/Anandamide/AnandamideDragData.cpp
 
 HEADERS +=\
     ../src/Misc/Camera2d.h \
@@ -94,9 +95,10 @@ HEADERS +=\
     ../include/AnandamideTypeInfo.h \
     ../include/AnandamideDocumentation.h \
     ../include/Resource.h \
-    ../include/AnandamideUi.h
+    ../include/AnandamideUi.h \
+    ../include/AnandamideDragData.h
 
-QMAKE_CXXFLAGS += -std=c++1v
+QMAKE_CXXFLAGS += -std=c++11
 
 build_pass:CONFIG(debug, debug|release) {
 
