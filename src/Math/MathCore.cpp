@@ -816,7 +816,7 @@ namespace Nutmeg {
 	const char *intToStr(int i) {
 		static char res[512];
 		*res = '\0';
-		sprintf_s(res, 512, "%d", i);
+		snprintf(res, 512, "%d", i);
 		return res;
 	}
 
@@ -825,7 +825,7 @@ namespace Nutmeg {
 	const char *floatToStr(float f) {
 		static char res[512];
 		*res = '\0';
-		sprintf_s(res, 512, "%f", f);
+		snprintf(res, 512, "%f", f);
 		return res;
 	}
 
@@ -835,11 +835,11 @@ namespace Nutmeg {
 		static char res[512];
 		*res = '\0';
 
-		strcat_s(res, 512, floatToStr(v.x));
-		strcat_s(res, 512, " ");
-		strcat_s(res, 512, floatToStr(v.y));
-		strcat_s(res, 512, " ");
-		strcat_s(res, 512, floatToStr(v.z));
+		strcat(res, floatToStr(v.x));
+		strcat(res, " ");
+		strcat(res, floatToStr(v.y));
+		strcat(res, " ");
+		strcat(res, floatToStr(v.z));
 
 		return res;
 	}
@@ -851,10 +851,10 @@ namespace Nutmeg {
 		const float *mat = m;
 
 		for(int i=0; i<15; i++) {
-			strcat_s(res, 1024, floatToStr(mat[i]));
-			strcat_s(res, 1024, " ");
+			strcat(res, floatToStr(mat[i]));
+			strcat(res, " ");
 		}
-		strcat_s(res, 1024, floatToStr(mat[15]));
+		strcat(res, floatToStr(mat[15]));
 
 		return res;
 	}
@@ -951,7 +951,7 @@ namespace Nutmeg {
 	const char *doubleToStr(double f) {
 		static char res[512];
 		*res = '\0';
-		sprintf_s(res, 512, "%g", f);
+		snprintf(res, 512, "%g", f);
 		return res;
 	}
 	

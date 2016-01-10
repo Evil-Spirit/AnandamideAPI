@@ -40,7 +40,7 @@
 #define CHECK_RANGE(index)	{											\
 								static char error[0x200];				\
 								if (index >= size || index < 0) {		\
-									sprintf_s(error, 0x200, "Array <%s> : index out of bounds (index = %d, count = %d)", typeid(Class).name(), index, size); \
+									sprintf(error, "Array <%s> : index out of bounds (index = %d, count = %d)", typeid(Class).name(), index, size); \
 									throw (const char *)error;			\
 								}										\
 							}

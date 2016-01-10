@@ -24,11 +24,18 @@
 
 #ifndef ANANDAMIDEAPI_GLOBAL_H
 #define ANANDAMIDEAPI_GLOBAL_H
-
-#if defined(ANANDAMIDEAPI_LIBRARY)
+#if _WIN32
+#ifdef ANANDAMIDEAPI_LIBRARY
 	#define ANANDAMIDE_API __declspec(dllexport)
 #else
 	#define ANANDAMIDE_API __declspec(dllimport)
+#endif
+#else
+#ifdef ANANDAMIDEAPI_LIBRARY
+	#define ANANDAMIDE_API __attribute__((visibility("default")))
+#else
+	#define ANANDAMIDE_API __attribute__((visibility("default")))
+#endif
 #endif
 
 #define ANANDAMIDE_UNUSED(x) (void)x

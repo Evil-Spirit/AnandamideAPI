@@ -33,7 +33,7 @@ LIB_DIR = $$quote(..\\lib\\)
 #TARGET = AnandamideAPI
 TEMPLATE = lib
 
-DEFINES += ANANDAMIDEAPI_LIBRARY
+DEFINES+=ANANDAMIDEAPI_LIBRARY
 
 INCLUDEPATH += ../include
 INCLUDEPATH += ../src/Anandamide
@@ -100,26 +100,26 @@ HEADERS +=\
 
 QMAKE_CXXFLAGS += -std=c++11
 
-build_pass:CONFIG(debug, debug|release) {
+CONFIG(debug, debug|release) {
 
-    DEFINES += DEBUG
+    DEFINES+=DEBUG
 
-    build_pass:CONFIG(x64, x64|x32) {
+    CONFIG(x64, x64|x32) {
         TARGET = AnandamideAPI_x64d
-    } else:build_pass {
+    } else {
         TARGET = AnandamideAPI_x86d
     }
-    LIBS += -lopengl32
+    #LIBS += -lopengl32
 
     message($${TARGET})
-} else:build_pass {
+} else {
     #QMAKE_CXXFLAGS += /Ot /Oy- /GL /MP
-    build_pass:CONFIG(x64, x64|x32) {
+    CONFIG(x64, x64|x32) {
         TARGET = AnandamideAPI_x64
-    } else:build_pass {
+    } else {
         TARGET = AnandamideAPI_x86
     }
-    LIBS += -lopengl32
+   # LIBS += -lopengl32
 
     message($${TARGET})
 }

@@ -36,8 +36,7 @@
 
 //------------------------------------------------------------------------------
 
-#include <windows.h>
-#include <gl/gl.h>
+#include <GL/gl.h>
 
 //------------------------------------------------------------------------------
 
@@ -414,7 +413,7 @@ namespace Anandamide {
 		static char	text[4096] = "\0\0";
 		va_list	ap;
 		va_start(ap, fmt);
-		vsprintf_s(text, 4096, fmt, ap);
+		vsprintf(text, fmt, ap);
 		va_end(ap);
 	
 		if(painter != NULL) {
@@ -435,7 +434,7 @@ namespace Anandamide {
 		static char	text[4096] = "\0\0";
 		va_list	ap;
 		va_start(ap, fmt);
-		vsprintf_s(text, 4096, fmt, ap);
+		vsprintf(text, fmt, ap);
 		va_end(ap);
 	
 		if(painter != NULL) {
@@ -454,7 +453,7 @@ namespace Anandamide {
 		static char	text[4096] = "\0\0";
 		va_list	ap;
 		va_start(ap, fmt);
-		vsprintf_s(text, 4096, fmt, ap);
+		vsprintf(text, fmt, ap);
 		va_end(ap);
 		
 		if(painter != NULL) {
@@ -473,7 +472,7 @@ namespace Anandamide {
 		static char	text[4096] = "\0\0";
 		va_list	ap;
 		va_start(ap, fmt);
-		vsprintf_s(text, 4096, fmt, ap);
+		vsprintf(text, fmt, ap);
 		va_end(ap);
 		
 		if(painter != NULL) {
@@ -492,7 +491,7 @@ namespace Anandamide {
 		static char	text[4096] = "\0\0";
 		va_list	ap;
 		va_start(ap, fmt);
-		vsprintf_s(text, 4096, fmt, ap);
+		vsprintf(text, fmt, ap);
 		va_end(ap);
 	
 		if(painter != NULL) {
@@ -515,7 +514,7 @@ namespace Anandamide {
 		static char	text[4096] = "\0\0";
 		va_list	ap;
 		va_start(ap, fmt);
-		vsprintf_s(text, 4096, fmt, ap);
+		vsprintf(text, fmt, ap);
 		va_end(ap);
 	
 		if(painter != NULL) {
@@ -536,7 +535,7 @@ namespace Anandamide {
 		static char	text[4096] = "\0\0";
 		va_list	ap;
 		va_start(ap, fmt);
-		vsprintf_s(text, 4096, fmt, ap);
+		vsprintf(text, fmt, ap);
 		va_end(ap);
 		
 		if(painter != NULL) {
@@ -557,7 +556,7 @@ namespace Anandamide {
 		static char	text[4096] = "\0\0";
 		va_list	ap;
 		va_start(ap, fmt);
-		vsprintf_s(text, 4096, fmt, ap);
+		vsprintf(text, fmt, ap);
 		va_end(ap);
 		
 		if(painter != NULL) {
@@ -585,7 +584,7 @@ namespace Anandamide {
 		static char	text[4096] = "\0\0";
 		va_list	ap;
 		va_start(ap, fmt);
-		vsprintf_s(text, 4096, fmt, ap);
+		vsprintf(text, fmt, ap);
 		va_end(ap);
 		
 		if(painter != NULL) {
@@ -625,7 +624,7 @@ namespace Anandamide {
 		static char	text[4096] = "\0\0";
 		va_list	ap;
 		va_start(ap, fmt);
-		vsprintf_s(text, 4096, fmt, ap);
+		vsprintf(text, fmt, ap);
 		va_end(ap);
 		
 		if(painter != NULL) {
@@ -653,7 +652,7 @@ namespace Anandamide {
 		static char	text[4096] = "\0\0";
 		va_list	ap;
 		va_start(ap, fmt);
-		vsprintf_s(text, 4096, fmt, ap);
+		vsprintf(text, fmt, ap);
 		va_end(ap);
 		
 		if(painter != NULL) {
@@ -674,7 +673,7 @@ namespace Anandamide {
 		static char	text[4096] = "\0\0";
 		va_list	ap;
 		va_start(ap, fmt);
-		vsprintf_s(text, 4096, fmt, ap);
+		vsprintf(text, fmt, ap);
 		va_end(ap);
 		
 		if(painter != NULL) {
@@ -695,7 +694,7 @@ namespace Anandamide {
 		static char	text[4096] = "\0\0";
 		va_list	ap;
 		va_start(ap, fmt);
-		vsprintf_s(text, 4096, fmt, ap);
+		vsprintf(text, fmt, ap);
 		va_end(ap);
 	
 		if(painter != NULL) {

@@ -32,8 +32,8 @@
 
 #include "AnandamideUi.h"
 
-#include "QLibrary.h"
-#include "QDebug.h"
+#include <QLibrary>
+#include <QDebug>
 
 #include <QElapsedTimer>
 #include <QFile>
@@ -220,23 +220,20 @@ namespace Anandamide {
 				base_name.replace("_x64", "");
 				QString new_name = base_name;
 				
-				#ifdef x64
-					#ifdef DEBUG
-						//qDebug() << "THE x64d";
-						new_name += "_x64d.dll";
-					#else
-						//qDebug() << "THE x64";
-						new_name += "_x64.dll";
-					#endif
-				#else
 					#ifdef DEBUG
 						//qDebug() << "THE x86d";
-						new_name += "_x86d.dll";
+						#ifdef _WIN32
+							new_name += "_x86d.dll";
+						#else
+							new_name += "_x86d.so";
+						#endif
 					#else
-						//qDebug() << "THE x86";
-						new_name += "_x86.dll";
+						#ifdef _WIN32
+							new_name += "_x86.dll";
+						#else
+							new_name += "_x86.so";
+						#endif
 					#endif
-				#endif
 						
 				//qDebug() << "new_name" << new_name;
 				

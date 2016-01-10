@@ -28,8 +28,7 @@
 //------------------------------------------------------------------------------
 
 #include "Array.h"
-#include "Assert.h"
-#include "qDebug.h"
+#include <QDebug>
 
 namespace Anandamide {
 	

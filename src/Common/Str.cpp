@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <cctype>
 
 //------------------------------------------------------------------------------
 
@@ -41,7 +42,7 @@ namespace Anandamide {
 		static char	text[4096];
 		va_list	ap;
 		va_start(ap, fmt);
-		vsnprintf_s(text, 4096, fmt, ap);
+		vsnprintf(text, 4096, fmt, ap);
 		va_end(ap);
 		return text;
 	}
@@ -130,7 +131,7 @@ namespace Anandamide {
 		static char	text[1024] = "\0";
 		va_list	ap;
 		va_start(ap, fmt);
-		vsprintf_s(text, 1024, fmt, ap);
+		vsnprintf(text, 1024, fmt, ap);
 		va_end(ap);
 		set(text);
 		return data;
@@ -220,7 +221,9 @@ namespace Anandamide {
 	
 	void Str::toLowerCase() {
 		if (data == NULL) return;
-		strlwr(data);
+		//strlwr(data); в linux ее нету :)
+		char * p = data;
+		while (*p = tolower(*p)) ++p;
 	}
 	
 	Str Str::getLowerCase() const {
