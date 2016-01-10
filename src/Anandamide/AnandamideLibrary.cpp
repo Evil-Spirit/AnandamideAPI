@@ -199,42 +199,40 @@ namespace Anandamide {
 		public:
 			
 			static DynamicLibrary *create(const char *file_name) {
-				//qDebug() << __FUNCTION__ << file_name;
 				
 				QElapsedTimer timer;
 				timer.start();
 				QFileInfo file_info = QString::fromLocal8Bit(file_name);
 				QString base_name = file_info.baseName();
 				
-				//qDebug() << "base_name" << base_name;
-				
-				/*QRegExp x86("*x86.dll"), x86d("*x86d.dll"), x64("*x64.dll"), x64d("*x64d.dll");
-				x86.setPatternSyntax(QRegExp::Wildcard);
-				x86d.setPatternSyntax(QRegExp::Wildcard);
-				x64.setPatternSyntax(QRegExp::Wildcard);
-				x64d.setPatternSyntax(QRegExp::Wildcard);*/
-				
 				base_name.replace("_x86d", "");
 				base_name.replace("_x86", "");
 				base_name.replace("_x64d", "");
 				base_name.replace("_x64", "");
+				
+				#ifdef _WIN32
+				
+				#else
+					base_name.replace("lib", "");
+					base_name.prepend("lib");
+				#endif
+				
 				QString new_name = base_name;
 				
-					#ifdef DEBUG
-						//qDebug() << "THE x86d";
-						#ifdef _WIN32
-							new_name += "_x86d.dll";
-						#else
-							new_name += "_x86d.so";
-						#endif
+				#ifdef DEBUG
+					#ifdef _WIN32
+						new_name += "_x86d.dll";
 					#else
-						#ifdef _WIN32
-							new_name += "_x86.dll";
-						#else
-							new_name += "_x86.so";
-						#endif
+						new_name += "_x86d.so";
 					#endif
-						
+				#else
+					#ifdef _WIN32
+						new_name += "_x86.dll";
+					#else
+						new_name += "_x86.so";
+					#endif
+				#endif
+				
 				//qDebug() << "new_name" << new_name;
 				
 				//messageMessage(format("Loading \"%s\" library.", new_name.toLocal8Bit().constData()));
