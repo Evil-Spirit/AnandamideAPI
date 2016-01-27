@@ -3,9 +3,10 @@
 // This file is part of AnandamideAPI Script
 //
 // copyright:	(c) 2010 - 2016
-// author:		Georgiy Kostarev
+// author:		Georgy Kostarev
 // mailto:		anandamide@mail.ru
 // 				anandamide.script@gmail.com
+//				kostarevgi@gmail.com
 //
 // AnandamideAPI is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by

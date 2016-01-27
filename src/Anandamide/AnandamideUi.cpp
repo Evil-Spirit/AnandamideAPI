@@ -3,9 +3,10 @@
 // This file is part of AnandamideAPI Script
 //
 // copyright:	(c) 2010 - 2016
-// author:		Georgiy Kostarev
+// author:		Georgy Kostarev
 // mailto:		anandamide@mail.ru
 // 				anandamide.script@gmail.com
+//				kostarevgi@gmail.com
 //
 // AnandamideAPI is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -36,20 +37,16 @@
 
 #include <QBuffer>
 #include <QRegExp>
-#include <QPointer>
 
 #include <QEvent>
-#include <QMouseEvent>
-#include <QKeyEvent>
-#include <QCloseEvent>
 
 #include <QMetaEnum>
 #include <QUuid>
 
 #include <QAbstractScrollArea>
 
-#define ASSERT(expr, ...) if (!(expr)) { WARN(__VA_ARGS__); } assert(expr)
-#define WARN(...) Anandamide::errorMessage(format(__VA_ARGS__)); qDebug(__VA_ARGS__);
+#define msgassert(expr, ...) if (!(expr)) { msgwarning(__VA_ARGS__); } assert(expr)
+#define msgwarning(...) Anandamide::errorMessage(format(__VA_ARGS__)); qDebug(__VA_ARGS__);
 #define str_from_ba(byte_array) Str(byte_array.constData())
 #define str_from_int(Num) Str(QString::number( Num ).toLocal8Bit().constData())
 
@@ -63,7 +60,7 @@ namespace Anandamide {
 	//	Common
 	//----------------------------------------------------------------------------------------------------------------------------
 
-	Str getArgumentName(QMetaMethod &method, Str suffix, int index) {
+	Str get_arg_name(QMetaMethod &method, Str suffix, int index) {
 		auto ba = method.parameterNames().at(index);
 		if (ba.isDetached() || ba.isEmpty() || ba.isNull()) {
 			return suffix + str_from_int(index);
@@ -72,17 +69,17 @@ namespace Anandamide {
 	}
 
 	template <int I>
-	QGenericArgument getGeneric(Neurone *neurone, QMetaMethod &method) {
-		void *value = neurone->getInput(getArgumentName(method, "arg_", I))->getValue().getDataPtr();
+	QGenericArgument get_generic_arg(Neurone *neurone, QMetaMethod &method) {
+		void *value = neurone->getInput(get_arg_name(method, "arg_", I))->getValue().getDataPtr();
 		return  QGenericArgument(method.parameterTypes().at(I).constData(), value);
 	}
 
 	template <int... Is>
-	bool invokeMethod(QObject *object, Neurone *neurone, QMetaMethod &method, QGenericReturnArgument &v_return) {
-		return method.invoke(object, v_return, getGeneric <Is>(neurone, method)...);
+	bool invoke_method(QObject *object, Neurone *neurone, QMetaMethod &method, QGenericReturnArgument &v_return) {
+		return method.invoke(object, v_return, get_generic_arg <Is>(neurone, method)...);
 	}
 
-	QString evalKind(QObject *object) {
+	QString eval_kind(QObject *object) {
 		QObject *it = object;
 		QString kind = it->objectName();
 		while (it->parent()) {
@@ -92,7 +89,7 @@ namespace Anandamide {
 		return kind;
 	}
 
-	QString evalKind(const QMetaObject *metaobject) {
+	QString eval_kind(const QMetaObject *metaobject) {
 		const QMetaObject *it = metaobject;
 		QString kind = it->className();
 		while (it->superClass()) {
@@ -102,7 +99,7 @@ namespace Anandamide {
 		return kind;
 	}
 
-	QString evalName(QObject *object) {
+	QString eval_name(QObject *object) {
 		QObject *it = object;
 		QString name = it->objectName();
 		while (it->parent()) {
@@ -124,11 +121,11 @@ namespace Anandamide {
 		QVector <QVariant> argv;
 
 	public:
-		Connection(QObject *object, QMetaMethod &method, Neurone *neurone)
+		Connection(QObject *object, const QMetaMethod &method, Neurone *neurone)
 			: QObject(object), method(method), event(neurone)
 		{
 			bool connection = initConnection(object);
-			ASSERT(connection, "Can not init connection between object %s, method %s, neurone %s",\
+			msgassert(connection, "Can not init connection between object %s, method %s, neurone %s",\
 						   object->metaObject()->className(), method.methodSignature().constData(), neurone->getType());
 		}
 		~Connection() {
@@ -157,21 +154,21 @@ namespace Anandamide {
 		bool initConnection(QObject *object) {
 			static const int mem_offs = QObject::staticMetaObject.methodCount();
 			if (!object) {
-				WARN("Connection: Can not connect on a null object.");
+				msgwarning("Connection: Can not connect on a null object.");
 				return false;
 			}
 			if (!method.isValid()) {
-				WARN("Connection: Null signal name is not valid.");
+				msgwarning("Connection: Null signal name is not valid.");
 				return false;
 			}
 			const int index = method.methodIndex();
 			if (index < 0) {
-				WARN("Connection: No such signal: \"%s\".", method.methodSignature().constData());
+				msgwarning("Connection: No such signal: \"%s\".", method.methodSignature().constData());
 				return false;
 			}
 
 			if (!QMetaObject::connect(object, index, this, mem_offs, Qt::DirectConnection, 0)) {
-				WARN("Connection: QMetaObject::connect returned false. Unable to connect.");
+				msgwarning("Connection: QMetaObject::connect returned false. Unable to connect.");
 				return false;
 			}
 			return true;
@@ -257,15 +254,19 @@ namespace Anandamide {
 			}
 
 			virtual TypeContainer *add(const TypeContainer *o) const {
+				ANANDAMIDE_UNUSED(o);
 				return NULL;
 			}
 			virtual TypeContainer *sub(const TypeContainer *o) const {
+				ANANDAMIDE_UNUSED(o);
 				return NULL;
 			}
 			virtual TypeContainer *mul(const TypeContainer *o) const {
+				ANANDAMIDE_UNUSED(o);
 				return NULL;
 			}
 			virtual TypeContainer *div(const TypeContainer *o) const {
+				ANANDAMIDE_UNUSED(o);
 				return NULL;
 			}
 
@@ -286,8 +287,8 @@ namespace Anandamide {
 	///
 
 	template <class T>
-	struct OnInitMeta {
-		inline OnInitMeta(Libraries *libraries, T *neurone);
+	struct create_instance_input {
+		inline create_instance_input(Libraries *libraries, T *neurone);
 	};
 
 	//----------------------------------------------------------------------------------------------------------------------------
@@ -345,7 +346,7 @@ namespace Anandamide {
     {
         QMetaMethod method;
 
-		friend struct OnInitMeta <MethodNeurone>;
+		friend struct create_instance_input <MethodNeurone>;
 
 	public:
 		MethodNeurone(QMetaMethod method) : ObjectNeuroneBase(), method(method) {
@@ -355,18 +356,18 @@ namespace Anandamide {
 
         void onInit(Libraries *libraries) {
 
-			OnInitMeta <MethodNeurone>(libraries, this);
+			create_instance_input <MethodNeurone>(libraries, this);
 
-            getAction("in")->setAction(Common::Action::create(this, &MethodNeurone::onIn));
+			getAction("in")->setAction(Common::Action::create(this, &MethodNeurone::onRun));
             for (int i = 0; i < method.parameterCount(); ++i) {
-				addInput(getArgumentName(method, "arg_", i), new Input(libraries->createVariableByTypeName(method.parameterTypes().at(i).constData())));
+				addInput(get_arg_name(method, "arg_", i), new Input(libraries->createVariableByTypeName(method.parameterTypes().at(i).constData())));
             }
 			if (method.returnType() != qMetaTypeId <void>()) {
 				addOutput("result", new Output(this, libraries->createVariableByTypeName(method.typeName())));
 			}
         }
 
-        void onIn() {
+		void onRun() {
 			if (getObject() == nullptr)
 				return warningMessage(format("Input pointer is NULL. Script: %s, Logic: %s, Neurone: %s, Pos: (%d, %d).",\
 									  getLogic()->getScript()->getName(), getLogic()->getName(), getType(), getPosX(), getPosY()));
@@ -375,17 +376,17 @@ namespace Anandamide {
 			auto v_return = QGenericReturnArgument(method.typeName(), v_ret);
 			switch (method.parameterCount()) {
 				case 0: result = method.invoke(getObject(), v_return); break;
-				case 1: result = invokeMethod <0>(getObject(), this, method, v_return); break;
-				case 2: result = invokeMethod <0, 1>(getObject(), this, method, v_return); break;
-				case 3: result = invokeMethod <0, 1, 2>(getObject(), this, method, v_return); break;
-				case 4: result = invokeMethod <0, 1, 2, 3>(getObject(), this, method, v_return); break;
-				case 5: result = invokeMethod <0, 1, 2, 3, 4>(getObject(), this, method, v_return); break;
-				case 6: result = invokeMethod <0, 1, 2, 3, 4, 5>(getObject(), this, method, v_return); break;
-				case 7: result = invokeMethod <0, 1, 2, 3, 4, 5, 6>(getObject(), this, method, v_return); break;
-				case 8: result = invokeMethod <0, 1, 2, 3, 4, 5, 6, 7>(getObject(), this, method, v_return); break;
-				case 9: result = invokeMethod <0, 1, 2, 3, 4, 5, 6, 7, 8>(getObject(), this, method, v_return); break;
+				case 1: result = invoke_method <0>(getObject(), this, method, v_return); break;
+				case 2: result = invoke_method <0, 1>(getObject(), this, method, v_return); break;
+				case 3: result = invoke_method <0, 1, 2>(getObject(), this, method, v_return); break;
+				case 4: result = invoke_method <0, 1, 2, 3>(getObject(), this, method, v_return); break;
+				case 5: result = invoke_method <0, 1, 2, 3, 4>(getObject(), this, method, v_return); break;
+				case 6: result = invoke_method <0, 1, 2, 3, 4, 5>(getObject(), this, method, v_return); break;
+				case 7: result = invoke_method <0, 1, 2, 3, 4, 5, 6>(getObject(), this, method, v_return); break;
+				case 8: result = invoke_method <0, 1, 2, 3, 4, 5, 6, 7>(getObject(), this, method, v_return); break;
+				case 9: result = invoke_method <0, 1, 2, 3, 4, 5, 6, 7, 8>(getObject(), this, method, v_return); break;
 			}
-			ASSERT(result == true, "An error occured while trying to invoke method %s::%s", getObject()->metaObject()->className(), method.methodSignature().constData());
+			msgassert(result == true, "An error occured while trying to invoke method %s::%s", getObject()->metaObject()->className(), method.methodSignature().constData());
 			if (method.returnType() != qMetaTypeId <void>()) {
 				getOutput("result")->getVariable().setUnify(getOutput("result")->getVariable().getType(), new TypeContainerVariant(QVariant(method.returnType(), v_ret)));
 				//make it clean!
@@ -404,7 +405,7 @@ namespace Anandamide {
         Connection *connection;
         QMetaMethod signal;
     public:
-		SignalNeurone(QMetaMethod signal) : ObjectNeuroneBase(), signal(signal), connection(nullptr) {
+		SignalNeurone(const QMetaMethod &signal) : ObjectNeuroneBase(), signal(signal), connection(nullptr) {
 			addEvent("triggered", new Event());
         }
         ~SignalNeurone() {
@@ -420,14 +421,14 @@ namespace Anandamide {
 			if (connection == nullptr) return;
             QVector <QVariant> &argv = connection->getArgv();
             for (int i = 0; i < argv.count(); ++i) {
-                Output *output = getOutput(getArgumentName(signal, "ret_", i));
+				Output *output = getOutput(get_arg_name(signal, "ret_", i));
 				output->getVariable().setUnify(output->getVariable().getType(), new TypeContainerVariant(argv.at(i)));
             }
         }
 
         void onInit(Libraries *libraries) {
             for (int i = 0; i < signal.parameterCount(); ++i) {
-				Str name = getArgumentName(signal, "ret_", i);
+				Str name = get_arg_name(signal, "ret_", i);
 				Variable var =  libraries->createVariableByTypeName(signal.parameterTypes().at(i).constData());
                 addOutput (name, new Output(this, var));
                 getOutput(name)->setOnGetValueAction(Common::Action::create(this, &SignalNeurone::onGetValue));
@@ -445,10 +446,10 @@ namespace Anandamide {
 		QMetaProperty property;
 		bool rw;
 
-		friend struct OnInitMeta <PropertyNeurone>;
+		friend struct create_instance_input <PropertyNeurone>;
 
 	public:
-		PropertyNeurone(QMetaProperty property, bool rw) : ObjectNeuroneBase(), property(property), rw(rw) {
+		PropertyNeurone(const QMetaProperty &property, bool rw) : ObjectNeuroneBase(), property(property), rw(rw) {
 			if (!rw) return;
 			addAction("set", new Action());
 			getAction("set")->setAction(Common::Action::create(this, &PropertyNeurone::onSetValue));
@@ -471,7 +472,7 @@ namespace Anandamide {
 
 		void onInit(Libraries *libraries) {
 
-			OnInitMeta <PropertyNeurone>(libraries, this);
+			create_instance_input <PropertyNeurone>(libraries, this);
 
 			Variable in = libraries->createVariableByTypeName(Str(property.typeName()));
 			Variable out = in;
@@ -554,7 +555,7 @@ namespace Anandamide {
 	}
 
 	template <class T>
-	OnInitMeta <T>::OnInitMeta(Libraries *libraries, T *neurone)
+	create_instance_input <T>::create_instance_input(Libraries *libraries, T *neurone)
 	{
 		if (neurone->getDef()->hasInstance()) return;
 		QString name1 = QString(neurone->getDef()->getMetaObject()->className()) + "*";
@@ -582,6 +583,8 @@ namespace Anandamide {
 		}
 
 		Neurone *createNeurone(Libraries *libraries, bool dummy = false, Neurone* dummyNode = NULL) const override {
+			ANANDAMIDE_UNUSED(dummy);
+			ANANDAMIDE_UNUSED(dummyNode);
 			auto neurone = new ObjectNeurone;
             neurone->create(libraries, this);
             return neurone;
@@ -589,8 +592,8 @@ namespace Anandamide {
 
 	private:
 
-		virtual QString name() const { return evalName(getInstance()); }
-		virtual QString kind() const { return evalKind(getInstance()); }
+		virtual QString name() const { return eval_name(getInstance()); }
+		virtual QString kind() const { return eval_kind(getInstance()); }
 		virtual QString header() const { return getMetaObject()->className(); }
 
     };
@@ -620,6 +623,10 @@ namespace Anandamide {
 		}
 
 		Neurone *createNeurone(Libraries *libraries, bool dummy = false, Neurone* dummyNode = NULL) const override {
+
+			ANANDAMIDE_UNUSED(dummy);
+			ANANDAMIDE_UNUSED(dummyNode);
+
             Neurone *neurone = nullptr;
 
             switch (method.methodType()) {
@@ -638,7 +645,7 @@ namespace Anandamide {
 	private:
 
 		virtual QString name() const override {
-			if (hasInstance()) return evalName(getInstance()) + "->" + QString(method.methodSignature());
+			if (hasInstance()) return eval_name(getInstance()) + "->" + QString(method.methodSignature());
 			return getMetaObject()->className() + QString("::") + method.methodSignature();
 		}
 
@@ -650,7 +657,7 @@ namespace Anandamide {
 				case QMetaMethod::Slot:         k = "/Slots";        break;
 				case QMetaMethod::Constructor:  k = "/Constructors"; break;
 			}
-			if (hasInstance()) return evalKind(getInstance()) + k;
+			if (hasInstance()) return eval_kind(getInstance()) + k;
 			return "InheritedClasses/" + (getMetaObject()->className() + k);
 		}
 
@@ -670,22 +677,26 @@ namespace Anandamide {
 		QMetaProperty property;
 		bool rw;
 
-		PropertyDef(QMetaProperty &property, bool rw) : ObjectDefBase(), property(property), rw(rw) {}
+		PropertyDef(const QMetaProperty &property, bool rw) : ObjectDefBase(), property(property), rw(rw) {}
 
 	public:
-		static PropertyDef *create(QObject *object, QMetaProperty &property, bool rw) {
+		static PropertyDef *create(QObject *object, const QMetaProperty &property, bool rw) {
 			auto self = new PropertyDef(property, rw);
 			self->fromInstance(object);
 			return self;
 		}
 
-		static PropertyDef *create(const QMetaObject *metaobject, QMetaProperty &property, bool rw) {
+		static PropertyDef *create(const QMetaObject *metaobject, const QMetaProperty &property, bool rw) {
 			auto self = new PropertyDef(property, rw);
 			self->fromMetaObject(metaobject);
 			return self;
 		}
 
 		Neurone *createNeurone(Libraries *libraries, bool dummy = false, Neurone* dummyNode = NULL) const override {
+
+			ANANDAMIDE_UNUSED(dummy);
+			ANANDAMIDE_UNUSED(dummyNode);
+
 			Neurone *neurone = new PropertyNeurone(property, rw);
 			neurone->create(libraries, this);
 			return neurone;
@@ -694,12 +705,12 @@ namespace Anandamide {
 	private:
 
 		virtual QString name() const override {
-			if (hasInstance()) return evalName(getInstance()) + QString("->") + property.name();
+			if (hasInstance()) return eval_name(getInstance()) + QString("->") + property.name();
 			return QString(getMetaObject()->className()) + "::" + QString(property.name());
 		}
 
 		virtual QString kind() const override {
-			if (hasInstance()) return evalKind(getInstance()) + "/Properties";
+			if (hasInstance()) return eval_kind(getInstance()) + "/Properties";
 			return "InheritedClasses/" + (getMetaObject()->className() + QString("/Properties"));
 		}
 
@@ -829,6 +840,10 @@ namespace Anandamide {
 			}
 
 			Neurone *createNeurone(Libraries *libraries, bool dummy = false, Neurone *dummyNode = NULL) const override {
+
+				ANANDAMIDE_UNUSED(dummy);
+				ANANDAMIDE_UNUSED(dummyNode);
+
 				auto neurone = new Event(viewport, type);
 				neurone->create(libraries, this);
 				return neurone;
@@ -837,11 +852,11 @@ namespace Anandamide {
 		private:
 
 			QString name() const override {
-				return evalName(getInstance()) + "->" + EVENT_ENUM.valueToKey(type);
+				return eval_name(getInstance()) + "->" + EVENT_ENUM.valueToKey(type);
 			}
 
 			QString kind() const override {
-				return evalKind(getInstance()) + "/Events";
+				return eval_kind(getInstance()) + "/Events";
 			}
 
 			QString header() const override {
@@ -932,7 +947,7 @@ namespace Anandamide {
 		}
 
 		for (int j = 0; j < object->metaObject()->propertyCount(); ++j) {
-			//CREATE_DEF(PropertyDef::create(object, object->metaObject()->property(j), object->metaObject()->property(j).isWritable()));
+			CREATE_DEF(PropertyDef::create(object, object->metaObject()->property(j), object->metaObject()->property(j).isWritable()));
 		}
 
 		const QObjectList &objects = object->children();
@@ -948,7 +963,7 @@ namespace Anandamide {
 			CREATE_DEF(MethodDef::create(metaobject, metaobject->method(i)));
 		}
 		for (int i = 0; i < metaobject->propertyCount(); ++ i) {
-			//CREATE_DEF(PropertyDef::create(metaobject, metaobject->property(i), metaobject->property(i).isWritable()));
+			CREATE_DEF(PropertyDef::create(metaobject, metaobject->property(i), metaobject->property(i).isWritable()));
 		}
 	}
 
@@ -972,43 +987,20 @@ namespace Anandamide {
 		QUiLoader loader;
 		QObject *object = nullptr;
 
-		//Ugly hack to get around the resource manager
-		QString maybe_address = file_name;
-		QRegExp address_rex("[[][0-9]+[]]");
-		QRegExp from_buffer("[[][B][]]");
-		QRegExp from_object("[[][O][]]");
-		if (address_rex.indexIn(maybe_address) != -1) {
-			QString address = address_rex.cap().remove("[").remove("]");
-			if (from_buffer.indexIn(maybe_address) != -1) {
-				device = static_cast <QBuffer*>((void*)address.toULongLong());
-				WARN("Loading library from the buffer 0x%.8x. Hold on tight.", address.toULongLong());
-				device->open(QIODevice::ReadOnly);
-				object = loader.load(device);
-				device->close();
-			} else
-			if (from_object.indexIn(maybe_address) != -1) {
-				object = static_cast <QObject*>((void*)address.toULongLong());
-				WARN("Loading library from the object 0x%.8x. Hold on tight.", address.toULongLong());
-			}
+		QFile uiform_file(file_name);
+		bool opened = uiform_file.open(QIODevice::ReadOnly);
+		if (!opened) {
+			msgwarning("An error occured while trying to load Ui library from file: %s (Cannot open file)", file_name);
+			return nullptr;
 		}
-
-		if (!device && !object) {
-			QFile uiform_file(file_name);
-			bool opened = uiform_file.open(QIODevice::ReadOnly);
-			if (!opened) {
-				WARN("An error occured while trying to load Ui library from file: %s (Cannot open file)", file_name);
-				return nullptr;
-			}
-			device = &uiform_file;
-			object = loader.load(device);
-			device->close();
-		}
+		device = &uiform_file;
+		object = loader.load(device);
+		device->close();
 
 		if (!object) {
-			WARN("An error occured while trying to load widget from .ui file: %s (QUiLoader can not load ui)", file_name);
+			msgwarning("An error occured while trying to load widget from .ui file: %s (QUiLoader can not load ui)", file_name);
             return nullptr;
         }
-
 
 		return new QObjectLibrary(object, file_name);
 	}
@@ -1050,8 +1042,8 @@ namespace Anandamide {
 
 }
 
-#undef ASSERT
-#undef WARN
+#undef msgassert
+#undef msgwarning
 #undef str_from_ba
 #undef str_from_int
 
