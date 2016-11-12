@@ -222,12 +222,16 @@ namespace Anandamide {
 				#ifdef DEBUG
 					#ifdef _WIN32
 						new_name += "_x86d.dll";
+                    #elif __APPLE__
+                        new_name += "_x86d.dylib";
 					#else
 						new_name += "_x86d.so";
 					#endif
 				#else
 					#ifdef _WIN32
 						new_name += "_x86.dll";
+                    #elif __APPLE__
+                        new_name += "_x86.dylib";
 					#else
 						new_name += "_x86.so";
 					#endif
