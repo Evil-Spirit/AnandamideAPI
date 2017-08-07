@@ -1,10 +1,6 @@
 # AnandamideAPI
+Anandamide script is flexible diagram-based scripting language. Powerful library system provides flexible add-on support for your application and allows simple and fast feature development. Based on simple idea, this programming language is easy for understanding of basic principles and leads to lower cost of developemet for the business logic of your application.
 
-Anandamide script is flexible block diagram flow graph - based scripting language. 
-Flowchart scripting system provides flexible add-on system for your application 
-to bring simple and fast feature development with outstanding robustness. 
-The lowest understanding threshold provides low-cost development of the arbitrary 
-logic for your application. 
 for runtime please, look at
 https://github.com/Evil-Spirit/AnandamideEditor
 
